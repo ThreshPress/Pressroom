@@ -60,6 +60,31 @@ export function readAppEnv(root) {
   }
 }
 
+/** Optional local `.env` (XAI_API_KEY, etc.). Missing file → {}. */
+export function readDotEnv(root) {
+  try {
+    const env = {};
+    for (const line of readFileSync(join(root, ".env"), "utf8").split("\n")) {
+      const text = line.trim();
+      if (!text || text.startsWith("#")) continue;
+      const eq = text.indexOf("=");
+      if (eq < 1) continue;
+      const key = text.slice(0, eq).trim();
+      let value = text.slice(eq + 1).trim();
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+      env[key] = value;
+    }
+    return env;
+  } catch {
+    return {};
+  }
+}
+
 /** File values under the process environment: an explicit override wins. */
 export function mergeAppEnv(appEnv, processEnv) {
   return { ...appEnv, ...processEnv };
@@ -110,7 +135,10 @@ function main(argv) {
     console.error("usage: node scripts/with-app-env.mjs <command> [args…]");
     process.exit(2);
   }
-  const env = mergeAppEnv(readAppEnv(projectRoot()), process.env);
+  const env = mergeAppEnv(
+    { ...readDotEnv(projectRoot()), ...readAppEnv(projectRoot()) },
+    process.env,
+  );
   const child = spawn(command, args, { stdio: "inherit", env });
   // The dev server is long-running and is stopped by signalling this wrapper.
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
