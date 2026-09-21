@@ -1,5 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="PRESSROOM">
-  <rect width="32" height="32" fill="#1A1814"/>
-  <rect x="3.5" y="3.5" width="25" height="25" fill="none" stroke="#F3EEE6" stroke-width="0.75"/>
-  <path fill="#FBF8F2" d="M9.2 7.6h8.05c3.55 0 5.55 1.95 5.55 4.85 0 2.95-2.05 4.9-5.65 4.9H13.1v7.05H9.2V7.6zm3.9 2.45v4.85h3.95c1.85 0 2.9-.9 2.9-2.4s-1.05-2.45-2.95-2.45H13.1z"/>
+  <rect width="32" height="32" rx="1.25" fill="#1A1814"/>
+  <rect x="2.25" y="2.25" width="27.5" height="27.5" fill="none" stroke="#F3EEE6" stroke-width="0.9"/>
+  <path fill="#FBF8F2" fill-rule="evenodd" d="M7.2 6.6h11.1c4.15 0 6.7 2.2 6.7 5.7s-2.55 5.7-6.7 5.7H11.8v4.55h3.2v2.15H7.2V6.6zm1.85 1.85v7.7h8.85c2.55 0 4.05-1.35 4.05-3.85s-1.5-3.85-4.05-3.85H9.05z"/>
+  <rect fill="#FBF8F2" x="5.55" y="6.6" width="2.5" height="1.85"/>
+  <rect fill="#FBF8F2" x="5.55" y="23.7" width="9.15" height="1.9"/>
 </svg>
