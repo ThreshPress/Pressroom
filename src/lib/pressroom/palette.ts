@@ -1,0 +1,35 @@
+/** Content colors for compiled artifacts — not UI chrome. */
+export const C = {
+  ink: "#1A1814",
+  inkSoft: "#3A3530",
+  muted: "#6E6860",
+  rule: "#C9C0B0",
+  cream: "#EFE8DA",
+  paper: "#FBF8F2",
+  white: "#FFFCF7",
+  rust: "#7A3E2E",
+  rustSoft: "#A45A46",
+  slate: "#3A4A58",
+  slateSoft: "#5A6A78",
+  forest: "#2F4A3C",
+  forestSoft: "#4A6A58",
+  wash: "#E7E0D4",
+  newsprint: "#F4EFE6",
+} as const;
+
+export const SWATCHES = [
+  C.ink,
+  C.inkSoft,
+  C.muted,
+  C.rule,
+  C.cream,
+  C.paper,
+  C.white,
+  C.rust,
+  C.rustSoft,
+  C.slate,
+  C.slateSoft,
+  C.forest,
+  C.forestSoft,
+  C.wash,
+] as const;

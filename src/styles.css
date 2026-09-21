@@ -1,0 +1,102 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --font-sans: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Fraunces", "Times New Roman", serif;
+  --font-serif: "Fraunces", "Times New Roman", serif;
+
+  --color-background: #f3eee6;
+  --color-foreground: #1a1814;
+  --color-card: #fbf8f2;
+  --color-card-foreground: #1a1814;
+  --color-popover: #fbf8f2;
+  --color-popover-foreground: #1a1814;
+  --color-primary: #1a1814;
+  --color-primary-foreground: #fbf8f2;
+  --color-secondary: #e7e0d4;
+  --color-secondary-foreground: #1a1814;
+  --color-muted: #e7e0d4;
+  --color-muted-foreground: #6e6860;
+  --color-accent: #3a4a58;
+  --color-accent-foreground: #fbf8f2;
+  --color-destructive: #8c2f1b;
+  --color-destructive-foreground: #fbf8f2;
+  --color-border: #ddd6c8;
+  --color-input: #ddd6c8;
+  --color-ring: #3a4a58;
+  --color-paper: #fbf8f2;
+  --color-ink: #1a1814;
+  --color-rule: #c9c0b0;
+  --color-rust: #7a3e2e;
+  --color-steel: #3a4a58;
+
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius: 0.5rem;
+
+  --shadow-border:
+    0px 0px 0px 1px rgba(26, 24, 20, 0.06),
+    0px 1px 2px -1px rgba(26, 24, 20, 0.06),
+    0px 2px 4px 0px rgba(26, 24, 20, 0.04);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.press-canvas {
+  background-image:
+    linear-gradient(to right, rgba(26, 24, 20, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(26, 24, 20, 0.045) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+@page {
+  margin: 12mm;
+}
+
+@media print {
+  body * { visibility: hidden; }
+  #print-root, #print-root * { visibility: visible; }
+  #print-root {
+    position: absolute;
+    inset: 0;
+    background: white;
+  }
+  .no-print { display: none !important; }
+}

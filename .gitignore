@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+
+# build / tooling
+dist/
+.output/
+.tanstack/
+.vercel/
+.nitro/
+
+# local / generated
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# workspace scratch (not the app)
+artifacts/
+screenshots/
+.grok/preview.log
+.grok/references/
+.grok/skills/
+.grok/og-pending
+
+# lock leftover
+.node_modules.lock
