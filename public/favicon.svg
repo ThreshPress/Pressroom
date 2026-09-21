@@ -1,6 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="PRESSROOM">
-  <rect width="32" height="32" rx="6" fill="#1A1814"/>
-  <rect x="6" y="5" width="20" height="1.5" fill="#F3EEE6"/>
-  <rect x="6" y="25.5" width="20" height="1.5" fill="#F3EEE6"/>
-  <path fill="#FBF8F2" fill-rule="evenodd" d="M10 9h7.4c3.6 0 5.7 1.9 5.7 4.65S21 18.3 17.4 18.3H14V23h-4V9zm4 2.35v4.6h3.25c1.85 0 2.9-.9 2.9-2.3s-1.05-2.3-2.9-2.3H14z"/>
+  <rect width="32" height="32" fill="#1A1814"/>
+  <rect x="3.5" y="3.5" width="25" height="25" fill="none" stroke="#F3EEE6" stroke-width="0.75"/>
+  <path fill="#FBF8F2" d="M9.2 7.6h8.05c3.55 0 5.55 1.95 5.55 4.85 0 2.95-2.05 4.9-5.65 4.9H13.1v7.05H9.2V7.6zm3.9 2.45v4.85h3.95c1.85 0 2.9-.9 2.9-2.4s-1.05-2.45-2.95-2.45H13.1z"/>
 </svg>

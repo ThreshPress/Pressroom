@@ -18,6 +18,7 @@ dist/
 # workspace scratch (not the app)
 artifacts/
 screenshots/
+attachments/
 .grok/preview.log
 .grok/references/
 .grok/skills/

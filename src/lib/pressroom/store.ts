@@ -7,6 +7,7 @@ import type {
   CanvasElement,
   Page,
   Project,
+  SourceFile,
   TeachingProfile,
 } from "./types";
 import { PROFILES, buildSalesTaxProject } from "./seed";
@@ -41,7 +42,7 @@ interface PressState {
   selectPage: (id: string | null) => void;
   selectElements: (ids: string[]) => void;
   upsertProfile: (p: TeachingProfile) => void;
-  createProject: (input: { name: string; prompt: string; profileId: string }) => string;
+  createProject: (input: { name: string; prompt: string; profileId: string; sources?: SourceFile[] }) => string;
   updateProject: (id: string, patch: Partial<Project>) => void;
   deleteProject: (id: string) => void;
   setBlueprint: (projectId: string, blueprint: Blueprint) => void;
@@ -165,6 +166,7 @@ export const usePressStore = create<PressState>()(
           artifacts: [],
           activeArtifactId: null,
           favorites: [],
+          sources: input.sources ?? [],
         };
         set((s) => ({
           projects: [project, ...s.projects],

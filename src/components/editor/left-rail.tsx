@@ -3,7 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LIBRARY, COLLECTIONS, STOCK } from "@/lib/pressroom/elements-library";
-import type { Artifact, Blueprint, CanvasElement, Page } from "@/lib/pressroom/types";
+import type { Artifact, Blueprint, CanvasElement, Page, SourceFile } from "@/lib/pressroom/types";
 import { C } from "@/lib/pressroom/palette";
 import { uid, cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
@@ -16,6 +16,7 @@ export function LeftRail({
   onSelectPage,
   onAddPage,
   blueprint,
+  sources,
   onInsert,
 }: {
   tab: "pages" | "elements" | "visuals" | "blueprint";
@@ -25,6 +26,7 @@ export function LeftRail({
   onSelectPage: (id: string) => void;
   onAddPage: () => void;
   blueprint: Blueprint | null;
+  sources?: SourceFile[];
   onInsert: (el: CanvasElement) => void;
 }) {
   const tabs = [
@@ -61,8 +63,8 @@ export function LeftRail({
           />
         )}
         {tab === "elements" && <ElementsList onInsert={onInsert} />}
-        {tab === "visuals" && <VisualsList onInsert={onInsert} />}
-        {tab === "blueprint" && <BlueprintPanel blueprint={blueprint} />}
+        {tab === "visuals" && <VisualsList onInsert={onInsert} sources={sources} />}
+        {tab === "blueprint" && <BlueprintPanel blueprint={blueprint} sources={sources} />}
       </ScrollArea>
     </aside>
   );
@@ -230,9 +232,44 @@ function ElementsList({ onInsert }: { onInsert: (el: CanvasElement) => void }) {
   );
 }
 
-function VisualsList({ onInsert }: { onInsert: (el: CanvasElement) => void }) {
+function VisualsList({
+  onInsert,
+  sources,
+}: {
+  onInsert: (el: CanvasElement) => void;
+  sources?: SourceFile[];
+}) {
+  const uploaded = (sources ?? []).filter((s) => s.kind === "image" && s.dataUrl);
   return (
     <div className="grid grid-cols-1 gap-2 p-3">
+      {uploaded.length > 0 && (
+        <>
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">From the manuscript</p>
+          {uploaded.map((s) => (
+            <button
+              key={s.id}
+              className="overflow-hidden border border-border text-left"
+              onClick={() =>
+                onInsert({
+                  id: uid("el"),
+                  type: "image",
+                  x: 80,
+                  y: 80,
+                  w: 640,
+                  h: 360,
+                  z: 40,
+                  src: s.dataUrl!,
+                  alt: s.name,
+                  fit: "cover",
+                })
+              }
+            >
+              <img src={s.dataUrl} alt={s.name} className="h-28 w-full object-cover" />
+              <div className="px-2 py-1 text-[11px] text-muted-foreground">{s.name}</div>
+            </button>
+          ))}
+        </>
+      )}
       <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Library</p>
       {STOCK.map((s) => (
         <button
@@ -262,9 +299,22 @@ function VisualsList({ onInsert }: { onInsert: (el: CanvasElement) => void }) {
   );
 }
 
-function BlueprintPanel({ blueprint }: { blueprint: Blueprint | null }) {
+function BlueprintPanel({ blueprint, sources }: { blueprint: Blueprint | null; sources?: SourceFile[] }) {
   if (!blueprint) {
-    return <p className="p-4 text-sm text-muted-foreground">Develop a blueprint to ground every pressing in the same instructional source.</p>;
+    return (
+      <div className="space-y-3 p-4 text-sm text-muted-foreground">
+        <p>Compose a lesson from a brief or uploaded materials. That becomes the source every format is pressed from.</p>
+        {(sources?.length ?? 0) > 0 && (
+          <ul className="space-y-1 text-foreground">
+            {sources!.map((s) => (
+              <li key={s.id} className="truncate text-xs">
+                {s.name}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
   }
   return (
     <div className="space-y-4 p-4 text-sm">
@@ -273,6 +323,18 @@ function BlueprintPanel({ blueprint }: { blueprint: Blueprint | null }) {
         <p className="font-display text-lg font-semibold">{blueprint.topic}</p>
         <p className="text-muted-foreground">{blueprint.audience}</p>
       </div>
+      {sources && sources.length > 0 && (
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Manuscript</p>
+          <ul className="mt-1 space-y-1">
+            {sources.map((s) => (
+              <li key={s.id} className="truncate text-xs text-muted-foreground">
+                {s.name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {blueprint.drivingQuestion && (
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Driving question</p>

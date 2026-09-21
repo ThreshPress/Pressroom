@@ -412,6 +412,18 @@ export interface Artifact {
   pages: Page[];
 }
 
+export interface SourceFile {
+  id: string;
+  name: string;
+  mime: string;
+  size: number;
+  kind: "text" | "document" | "slides" | "image" | "other";
+  text?: string;
+  dataUrl?: string;
+  status: "ready" | "error";
+  error?: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -423,6 +435,7 @@ export interface Project {
   artifacts: Artifact[];
   activeArtifactId: string | null;
   favorites: string[];
+  sources?: SourceFile[];
 }
 
 export interface VisualHit {

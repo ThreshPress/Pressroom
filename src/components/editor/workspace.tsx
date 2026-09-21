@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Wordmark } from "@/components/studio/wordmark";
+import { ComposeDesk } from "@/components/studio/compose-desk";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -35,10 +36,11 @@ import {
 } from "@/lib/pressroom/store";
 import { artifactFromDoc, recompileArtifact } from "@/lib/pressroom/compile";
 import { formatMeta } from "@/lib/pressroom/formats";
-import { adaptDocument, askPressroom, pressDocument } from "@/lib/pressroom/ai";
+import { adaptDocument, askPressroom, pressDocument, developBlueprint } from "@/lib/pressroom/ai";
+import { sourceBrief } from "@/lib/pressroom/ingest";
 import { buildQtiZip, collectQuizDoc } from "@/lib/pressroom/qti";
 import { canvasPageHtml } from "@/lib/pressroom/export-html";
-import { PAGE_SIZES, type CanvasElement, type FormatId, type Page } from "@/lib/pressroom/types";
+import { PAGE_SIZES, type CanvasElement, type FormatId, type Page, type SourceFile } from "@/lib/pressroom/types";
 import { uid, downloadBlob, downloadText, cn } from "@/lib/utils";
 import { C } from "@/lib/pressroom/palette";
 
@@ -126,7 +128,7 @@ export function Workspace({ projectId }: { projectId: string }) {
 
   async function runPress(format: FormatId) {
     if (!project?.blueprint || !profile) {
-      toast.error("Develop a blueprint before sending to press.");
+      toast.error("Compose the lesson before sending to press.");
       return;
     }
     setBusyFormat(format);
@@ -243,6 +245,7 @@ export function Workspace({ projectId }: { projectId: string }) {
       onSelectPage={(id) => store.selectPage(id)}
       onAddPage={addPage}
       blueprint={project.blueprint}
+      sources={project.sources}
       onInsert={insert}
     />
   );
@@ -388,7 +391,11 @@ export function Workspace({ projectId }: { projectId: string }) {
                 />
               </div>
             ) : (
-              <EmptyPress onPress={() => setPressOpen(true)} hasBlueprint={!!project.blueprint} />
+              <EmptyPress
+                projectId={projectId}
+                hasBlueprint={!!project.blueprint}
+                onPress={() => setPressOpen(true)}
+              />
             )}
           </div>
         </div>
@@ -453,18 +460,81 @@ export function Workspace({ projectId }: { projectId: string }) {
   );
 }
 
-function EmptyPress({ onPress, hasBlueprint }: { onPress: () => void; hasBlueprint: boolean }) {
+function EmptyPress({
+  onPress,
+  hasBlueprint,
+  projectId,
+}: {
+  onPress: () => void;
+  hasBlueprint: boolean;
+  projectId: string;
+}) {
+  const store = usePressStore();
+  const project = store.projects.find((p) => p.id === projectId);
+  const profile = store.profiles.find((p) => p.id === project?.profileId) ?? store.profiles[0];
+  const [prompt, setPrompt] = useState(project?.prompt ?? "");
+  const [sources, setSources] = useState<SourceFile[]>(project?.sources ?? []);
+  const [profileId, setProfileId] = useState(project?.profileId ?? profile?.id ?? "");
+  const [busy, setBusy] = useState(false);
+
+  async function compose() {
+    if (!project || !profile) return;
+    const brief = sourceBrief(prompt, sources);
+    if (!brief) {
+      toast.error("Type a brief or upload a file to compose a lesson.");
+      return;
+    }
+    const ready = sources.filter((s) => s.status === "ready");
+    setBusy(true);
+    store.updateProject(projectId, { prompt: prompt.trim() || brief.slice(0, 280), profileId, sources: ready });
+    const result = await developBlueprint({
+      data: {
+        prompt: brief,
+        profile: store.profiles.find((p) => p.id === profileId) ?? profile,
+        sources: ready.filter((s) => s.text).map((s) => ({ name: s.name, text: s.text ?? "" })),
+      },
+    });
+    setBusy(false);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    store.setBlueprint(projectId, result.blueprint);
+    store.updateProject(projectId, { name: result.blueprint.topic });
+    toast.success("Lesson composed. Send it to press.");
+  }
+
+  if (hasBlueprint) {
+    return (
+      <div className="max-w-md py-24 text-center">
+        <p className="font-display text-3xl">Ready for press</p>
+        <p className="mt-3 text-muted-foreground">
+          The lesson is composed. Send it to press as a presentation, article, worksheet, organizer, or quiz.
+        </p>
+        <Button className="mt-6" variant="press" onClick={onPress}>
+          Send to Press
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-md py-24 text-center">
-      <p className="font-display text-3xl">Ready for press</p>
-      <p className="mt-3 text-muted-foreground">
-        {hasBlueprint
-          ? "The blueprint is set. Send it to press as a presentation, article, worksheet, organizer, or quiz."
-          : "Develop the instructional blueprint first, then press it into any format."}
+    <div className="w-full max-w-3xl py-8">
+      <p className="font-display text-3xl">Compose the lesson</p>
+      <p className="mt-2 mb-6 text-muted-foreground">
+        Type a brief or upload the materials you already have. Pressroom will read them, then you send the result to press.
       </p>
-      <Button className="mt-6" variant="press" onClick={onPress}>
-        Send to Press
-      </Button>
+      <ComposeDesk
+        prompt={prompt}
+        onPrompt={setPrompt}
+        sources={sources}
+        onSources={setSources}
+        profiles={store.profiles}
+        profileId={profileId}
+        onProfile={setProfileId}
+        busy={busy}
+        onSubmit={() => void compose()}
+      />
     </div>
   );
 }

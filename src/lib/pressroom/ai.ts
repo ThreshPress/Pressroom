@@ -70,12 +70,26 @@ Rules:
 - Be accurate. Do not invent citations or specific current statistics. Label examples as examples.
 - Age-appropriate voice. Never childish unless the profile asks for elementary.
 - Objectives must be measurable.
-- Sources may only be general (e.g. "state department of revenue") — never fake URLs or papers.`;
+- Sources may only be general (e.g. "state department of revenue") — never fake URLs or papers.
+- If SOURCE MATERIALS are provided, they are the teacher's existing content. Teach from them. Organize, clarify, and sequence — do not discard. Preserve factual claims. Do not invent documents the teacher did not attach.`;
 
 export const developBlueprint = createServerFn({ method: "POST" })
-  .validator((input: { prompt: string; profile: TeachingProfile }) => input)
+  .validator(
+    (input: {
+      prompt: string;
+      profile: TeachingProfile;
+      sources?: { name: string; text: string }[];
+    }) => input,
+  )
   .handler(async ({ data }) => {
-    const user = `Teacher request:\n${data.prompt}\n\nTeaching profile: ${data.profile.name} (${data.profile.gradeBand})\nAppearance: ${data.profile.appearance}\nReading: ${data.profile.reading}\nNotes: ${data.profile.notes}\nTraits: ${data.profile.traits.join("; ")}`;
+    const attached = (data.sources ?? [])
+      .filter((s) => s.text.trim())
+      .slice(0, 8)
+      .map((s) => `--- ${s.name} ---\n${s.text.slice(0, 24_000)}`)
+      .join("\n\n");
+    const user = `Teacher request:\n${data.prompt}\n\nTeaching profile: ${data.profile.name} (${data.profile.gradeBand})\nAppearance: ${data.profile.appearance}\nReading: ${data.profile.reading}\nNotes: ${data.profile.notes}\nTraits: ${data.profile.traits.join("; ")}${
+      attached ? `\n\nSOURCE MATERIALS:\n${attached}` : ""
+    }`;
     const result = await chat(BLUEPRINT_SYS, user, 4000);
     if (!result.ok) return result;
     try {
